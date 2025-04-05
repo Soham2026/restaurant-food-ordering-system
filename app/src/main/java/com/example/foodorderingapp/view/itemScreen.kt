@@ -1,5 +1,6 @@
 package com.example.foodorderingapp.view
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,6 +77,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -101,6 +103,8 @@ fun itemScreenUI(
 
     val context = LocalContext.current
     var isBottomSheetOpen = rememberSaveable { mutableStateOf(false) }
+    val bottomSheetViewModel:BottomSheetViewModel= hiltViewModel()
+
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -259,14 +263,16 @@ fun itemScreenUI(
                                         eachItemView(
                                             index,
                                             itemsViewModel,
-                                            cartItemsViewModel
+                                            cartItemsViewModel,
+                                            bottomSheetViewModel
                                         )
                                     }
                                 } else {
                                     eachItemView(
                                         index,
                                         itemsViewModel,
-                                        cartItemsViewModel
+                                        cartItemsViewModel,
+                                        bottomSheetViewModel
                                     )
                                 }
 
@@ -289,7 +295,7 @@ fun itemScreenUI(
     index: Int,
     itemsViewModel: ItemsViewModel,
     cartItemsViewModel: CartItemsViewModel,
-    bottomSheetViewModel: BottomSheetViewModel = BottomSheetViewModel()
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
     var textBoxWidth = remember { mutableStateOf(114.dp) }
     Card(
@@ -414,6 +420,7 @@ fun itemScreenUI(
                                             .fillMaxSize()
                                             .clip(shape = RoundedCornerShape(40.dp))
                                             .clickable(onClick = {
+                                                bottomSheetViewModel.selectedItemIndex = index
                                                 bottomSheetViewModel.isBottomSheetOpen.value = true
                                             }
 
@@ -433,6 +440,7 @@ fun itemScreenUI(
                                             .fillMaxSize()
                                             .clip(shape = RoundedCornerShape(40.dp))
                                             .clickable(onClick = {
+                                                bottomSheetViewModel.selectedItemIndex = index
                                                 bottomSheetViewModel.isBottomSheetOpen.value = true
                                             }),
                                         contentDescription = "",
@@ -471,7 +479,7 @@ fun itemScreenUI(
             }
         }
 
-        if (bottomSheetViewModel.isBottomSheetOpen.value) {
+        if (bottomSheetViewModel.isBottomSheetOpen.value && index == bottomSheetViewModel.selectedItemIndex) {
             bottomSheet(
                 index,
                 itemsViewModel,
@@ -575,6 +583,7 @@ private fun bottomSheet(
     cartItemsViewModel: CartItemsViewModel,
     textBoxWidth: MutableState<Dp>
 ) {
+    Log.d("BottomSheetViewModel", "$index")
     val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
         sheetState = sheetState,
